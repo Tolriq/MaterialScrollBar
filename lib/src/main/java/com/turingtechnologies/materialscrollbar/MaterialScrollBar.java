@@ -18,12 +18,13 @@ package com.turingtechnologies.materialscrollbar;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,6 +39,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+@SuppressWarnings("unused")
 @SuppressLint("ViewConstructor")
 public class MaterialScrollBar extends RelativeLayout {
 
@@ -45,7 +47,6 @@ public class MaterialScrollBar extends RelativeLayout {
     private View handle;
     int handleColour;
     private int handleOffColour = Color.parseColor("#9c9c9c");
-    private Activity a;
     private boolean hidden = true;
     private int hideDuration = 2500;
     private boolean hide = true;
@@ -54,46 +55,14 @@ public class MaterialScrollBar extends RelativeLayout {
     private int textColour = ContextCompat.getColor(getContext(), android.R.color.white);
     private boolean lightOnTouch;
     private boolean totallyHidden = false;
+    private Handler mUIHandler = new Handler(Looper.getMainLooper());
 
-    //Thread which checks every 1/10th of a second to decide if the scrollBar should slide away.
-    class BarFade extends Thread {
-
-        MaterialScrollBar materialScrollBar;
-
-        BarFade(MaterialScrollBar msb) {
-            materialScrollBar = msb;
-        }
-
-        //Variable which is later set to indicate the time after which the scrollBar should disappear
-        long time = 0;
-
-        //Variable which is set to false when dragging is occurring and true when dragging is stopped.
-        boolean run = false;
-        boolean held = false;
-
+    private Runnable mFadeBar = new Runnable() {
         @Override
         public void run() {
-            try {
-                while (true) {
-                    //Is it past the time where the bar should be animated away AND is no scrolling occurring?
-                    if (run && !held && time <= System.currentTimeMillis()) {
-                        run = false;
-                        materialScrollBar.a.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                materialScrollBar.fadeOut();
-                            }
-                        });
-                    }
-                    Thread.sleep(100);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            fadeOut();
         }
-    }
-
-    private BarFade fade;
+    };
 
     /**
      * For testing only. Should not generally be accessed.
@@ -117,22 +86,17 @@ public class MaterialScrollBar extends RelativeLayout {
     public MaterialScrollBar(Context context, RecyclerView recyclerView, boolean lightOnTouch) {
         super(context);
 
-        if (!isInEditMode()) {
-            a = (Activity) context;
-        }
-
         background = new View(context);
 
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(Utils.getDP(8, this), LayoutParams.MATCH_PARENT);
         lp.addRule(ALIGN_PARENT_RIGHT);
         background.setLayoutParams(lp);
 
-        background.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+        background.setBackgroundColor(ContextCompat.getColor(context, android.R.color.darker_gray));
         background.setAlpha(0.4F);
 
         handle = new View(context);
-        lp = new RelativeLayout.LayoutParams(Utils.getDP(8, this),
-                Utils.getDP(48, this));
+        lp = new RelativeLayout.LayoutParams(Utils.getDP(8, this), Utils.getDP(48, this));
         lp.addRule(ALIGN_PARENT_RIGHT);
         handle.setLayoutParams(lp);
 
@@ -170,9 +134,6 @@ public class MaterialScrollBar extends RelativeLayout {
 
         setTouchIntercept();
 
-        fade = new BarFade(this);
-        fade.start();
-
         TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_SELF, 1.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f);
         anim.setFillAfter(true);
         startAnimation(anim);
@@ -194,8 +155,7 @@ public class MaterialScrollBar extends RelativeLayout {
                             handle.setBackgroundColor(handleColour);
                         }
 
-                        fade.held = true;
-
+                        mUIHandler.removeCallbacks(mFadeBar);
                         fadeIn();
                     } else {
                         if (indicator != null && indicator.getVisibility() == VISIBLE) {
@@ -210,10 +170,9 @@ public class MaterialScrollBar extends RelativeLayout {
                         }
 
                         if (hide) {
-                            fade.run = true;
-                            fade.time = System.currentTimeMillis() + hideDuration;
+                            mUIHandler.removeCallbacks(mFadeBar);
+                            mUIHandler.postDelayed(mFadeBar, hideDuration);
                         }
-                        fade.held = false;
                     }
                     return true;
                 }
@@ -391,12 +350,10 @@ public class MaterialScrollBar extends RelativeLayout {
      */
     public MaterialScrollBar setAutoHide(Boolean hide) {
         if (!hide) {
-            fade.interrupt();
+            mUIHandler.removeCallbacks(mFadeBar);
             TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f);
             anim.setFillAfter(true);
             startAnimation(anim);
-        } else if (!this.hide) {
-            fade.start();
         }
         this.hide = hide;
         return this;
@@ -480,7 +437,6 @@ public class MaterialScrollBar extends RelativeLayout {
             anim.setDuration(500);
             anim.setFillAfter(true);
             startAnimation(anim);
-
         }
     }
 
@@ -551,10 +507,10 @@ public class MaterialScrollBar extends RelativeLayout {
 
             if (hide) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    fade.time = System.currentTimeMillis() + hideDuration;
-                    fade.run = true;
+                    mUIHandler.removeCallbacks(mFadeBar);
+                    mUIHandler.postDelayed(mFadeBar, hideDuration);
                 } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    fade.run = false;
+                    mUIHandler.removeCallbacks(mFadeBar);
                     materialScrollBar.fadeIn();
                 }
             }
