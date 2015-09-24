@@ -19,22 +19,27 @@ package com.turingtechnologies.materialscrollbar;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.Locale;
 
 /**
  * Indicator which should be used when only one character will be displayed at a time.
  */
 @SuppressLint("ViewConstructor")
-public class AlphabetIndicator extends Indicator{
+public class AlphabetIndicator extends Indicator {
 
-    public AlphabetIndicator (Context c){
+    public AlphabetIndicator(Context c) {
         super(c);
     }
 
     @Override
     String getTextElement(Integer currentSection, RecyclerView.Adapter adapter) {
-        return StringUtils.capitalize(((INameableAdapter) adapter).getCharacterForElement(currentSection).toString());
+        String character = ((INameableAdapter) adapter).getCharacterForElement(currentSection).toString();
+        if (TextUtils.isEmpty(character)) {
+            return null;
+        }
+        return character.toUpperCase(Locale.getDefault());
     }
 
     @Override
@@ -49,7 +54,7 @@ public class AlphabetIndicator extends Indicator{
 
     @Override
     void testAdapter(RecyclerView.Adapter adapter) {
-        if(!(adapter instanceof INameableAdapter)){
+        if (!(adapter instanceof INameableAdapter)) {
             throw new adapterNotSetupForIndicatorException("INameableAdapter");
         }
     }
