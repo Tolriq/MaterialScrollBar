@@ -510,8 +510,10 @@ public class MaterialScrollBar extends RelativeLayout {
                     mUIHandler.removeCallbacks(mFadeBar);
                     mUIHandler.postDelayed(mFadeBar, hideDuration);
                 } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    mUIHandler.removeCallbacks(mFadeBar);
-                    materialScrollBar.fadeIn();
+                    if (recyclerView.canScrollVertically(1) || recyclerView.canScrollVertically(-1) || recyclerView.canScrollHorizontally(1) || recyclerView.canScrollHorizontally(-1)) {
+                        mUIHandler.removeCallbacks(mFadeBar);
+                        materialScrollBar.fadeIn();
+                    }
                 }
             }
         }
