@@ -56,6 +56,7 @@ public class MaterialScrollBar extends RelativeLayout {
     private boolean lightOnTouch;
     private boolean totallyHidden = false;
     private Handler mUIHandler = new Handler(Looper.getMainLooper());
+    private IOnFastScrolledListener mFastScrolledListener;
 
     private Runnable mFadeBar = new Runnable() {
         @Override
@@ -76,6 +77,16 @@ public class MaterialScrollBar extends RelativeLayout {
      */
     public String getIndicatorText() {
         return (String) indicator.textView.getText();
+    }
+
+    /**
+     * Provides the ability to set a listener that will be called whenever a fast scroll occurs.
+     *
+     * @param listener to call when a fast scroll occurs.
+     */
+    public MaterialScrollBar setOnFastScrolledListener(IOnFastScrolledListener listener) {
+        mFastScrolledListener = listener;
+        return this;
     }
 
     /**
@@ -145,8 +156,11 @@ public class MaterialScrollBar extends RelativeLayout {
             public boolean onTouch(View v, MotionEvent event) {
                 if (!totallyHidden) {
                     if (event.getAction() != MotionEvent.ACTION_UP) {
-                        recyclerView.scrollToPosition((int) (recyclerView.getAdapter().getItemCount() * (event.getY() / (getHeight() - handle.getHeight()))));
-                        recyclerView.onScrolled(0, 0);
+                        int newPosition = (int) (recyclerView.getAdapter().getItemCount() * (event.getY() / (getHeight() - handle.getHeight())));
+                        if (mFastScrolledListener != null) {
+                            mFastScrolledListener.onFastScrolledTo(newPosition);
+                        }
+                        recyclerView.scrollToPosition(newPosition);
                         if (indicator != null && indicator.getVisibility() == INVISIBLE) {
                             indicator.setVisibility(VISIBLE);
                         }
@@ -159,9 +173,6 @@ public class MaterialScrollBar extends RelativeLayout {
                         fadeIn();
                     } else {
                         if (indicator != null && indicator.getVisibility() == VISIBLE) {
-                            if (Build.VERSION.SDK_INT <= 12) {
-                                indicator.clearAnimation();
-                            }
                             indicator.setVisibility(INVISIBLE);
                         }
 
