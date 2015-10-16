@@ -172,6 +172,9 @@ public class MaterialScrollBar extends RelativeLayout {
                         mUIHandler.removeCallbacks(mFadeBar);
                         fadeIn();
                     } else {
+                        if (mFastScrolledListener != null) {
+                            mFastScrolledListener.onFastScrolledTo(-1);
+                        }
                         if (indicator != null && indicator.getVisibility() == VISIBLE) {
                             indicator.setVisibility(INVISIBLE);
                         }

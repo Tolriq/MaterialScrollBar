@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public abstract class Indicator extends RelativeLayout{
+public abstract class Indicator extends RelativeLayout {
 
     protected TextView textView;
     private Context context;
@@ -36,10 +36,11 @@ public abstract class Indicator extends RelativeLayout{
         this.context = context;
     }
 
-    void linkToScrollBar(MaterialScrollBar materialScrollBar){
-        if(Build.VERSION.SDK_INT >= 16){
+    void linkToScrollBar(MaterialScrollBar materialScrollBar) {
+        if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
             setBackground(ContextCompat.getDrawable(context, R.drawable.indicator));
         } else {
+            //noinspection deprecation
             setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.indicator));
         }
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(Utils.getDP(getIndicatorWidth(), this), Utils.getDP(getIndicatorHeight(), this));
@@ -53,21 +54,22 @@ public abstract class Indicator extends RelativeLayout{
 
         addView(textView, tvlp);
 
-        ((GradientDrawable)getBackground()).setColor(materialScrollBar.handleColour);
+        ((GradientDrawable) getBackground()).setColor(materialScrollBar.handleColour);
 
         lp.addRule(ALIGN_RIGHT, materialScrollBar.getId());
-        ((ViewGroup)materialScrollBar.getParent()).addView(this, lp);
+        ((ViewGroup) materialScrollBar.getParent()).addView(this, lp);
     }
 
     /**
      * Used by the materialScrollBar to move the indicator with the handle
+     *
      * @param y Position to which the indicator should move.
      */
-    void setScroll(float y){
+    void setScroll(float y) {
         //Displace the indicator upward so that the carrot extends from the centre of the handle.
         y += Utils.getDP(24 - getIndicatorHeight(), this);
         //If the indicator is hidden by the top of the screen, it is inverted and displaced downward.
-        if(y < 0){
+        if (y < 0) {
             y += Utils.getDP(getIndicatorHeight(), this);
             this.setScaleY(-1F);
             textView.setScaleY(-1F);
@@ -81,9 +83,10 @@ public abstract class Indicator extends RelativeLayout{
 
     /**
      * Used by the materialScrollBar to change the text colour for the indicator.
+     *
      * @param colour The desired text colour.
      */
-    void setTextColour(int colour){
+    void setTextColour(int colour) {
         textView.setTextColor(colour);
     }
 
