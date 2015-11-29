@@ -501,13 +501,18 @@ public class MaterialScrollBar extends RelativeLayout {
             }
             RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(visibleChild);
             int itemHeight = holder.itemView.getHeight();
+            if (itemHeight == 0) {
+                return 0;
+            }
             int recyclerHeight = recyclerView.getHeight();
             int itemsInWindow = (recyclerHeight / itemHeight) * itemPerLines;
 
             int numItemsInList = recyclerView.getAdapter().getItemCount();
             int numScrollableSectionsInList = numItemsInList - itemsInWindow;
             int indexOfLastFullyVisibleItemInFirstSection = numItemsInList - numScrollableSectionsInList - 1;
-
+            if (numScrollableSectionsInList == 0) {
+                return 0;
+            }
             int currentSection = lastFullyVisiblePosition - indexOfLastFullyVisibleItemInFirstSection;
             if (indicator != null && indicator.getVisibility() == VISIBLE) {
                 indicator.textView.setText(indicator.getTextElement(currentSection, recyclerView.getAdapter()));
