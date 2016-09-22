@@ -79,6 +79,10 @@ public class MaterialScrollBar extends RelativeLayout {
         return (String) indicator.textView.getText();
     }
 
+    public View getHandle() {
+        return handle;
+    }
+
     /**
      * Provides the ability to set a listener that will be called whenever a fast scroll occurs.
      *
@@ -173,7 +177,7 @@ public class MaterialScrollBar extends RelativeLayout {
                         fadeIn();
                     } else {
                         if (mFastScrolledListener != null) {
-                            mFastScrolledListener.onFastScrolledTo(-1);
+                            mFastScrolledListener.onFastScrolledTo(-1000);
                         }
                         if (indicator != null && indicator.getVisibility() == VISIBLE) {
                             indicator.setVisibility(INVISIBLE);
@@ -438,6 +442,9 @@ public class MaterialScrollBar extends RelativeLayout {
             anim.setFillAfter(true);
             hidden = true;
             startAnimation(anim);
+            if (mFastScrolledListener != null) {
+                mFastScrolledListener.onFastScrolledTo(-1000);
+            }
         }
     }
 
