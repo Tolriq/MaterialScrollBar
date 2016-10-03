@@ -149,9 +149,8 @@ public class MaterialScrollBar extends RelativeLayout {
 
         setTouchIntercept();
 
-        TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_SELF, 1.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f);
-        anim.setFillAfter(true);
-        startAnimation(anim);
+        hidden = true;
+        setTranslationX(Utils.getDP(8, this));
     }
 
     private void setTouchIntercept() {
@@ -453,6 +452,9 @@ public class MaterialScrollBar extends RelativeLayout {
      */
     private void fadeIn() {
         if (hidden && hide && !totallyHidden) {
+            if (getTranslationX() > 0) {
+                setTranslationX(0);
+            }
             hidden = false;
             TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 1.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f);
             anim.setDuration(500);
