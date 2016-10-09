@@ -450,7 +450,7 @@ public class MaterialScrollBar extends RelativeLayout {
     private void fadeOut() {
         if (!hidden) {
             TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_SELF, 1.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f);
-            anim.setDuration(500);
+            anim.setDuration(250);
             anim.setFillAfter(true);
             hidden = true;
             startAnimation(anim);
@@ -470,7 +470,7 @@ public class MaterialScrollBar extends RelativeLayout {
             }
             hidden = false;
             TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 1.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f);
-            anim.setDuration(500);
+            anim.setDuration(250);
             anim.setFillAfter(true);
             startAnimation(anim);
         }
