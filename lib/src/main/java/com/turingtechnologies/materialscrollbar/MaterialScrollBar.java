@@ -50,6 +50,7 @@ public class MaterialScrollBar extends RelativeLayout {
     private boolean hidden = true;
     private int hideDuration = 2500;
     private boolean hide = true;
+    private boolean handleTouchOnly = false;
     private RecyclerView recyclerView;
     private Indicator indicator;
     private int textColour = ContextCompat.getColor(getContext(), android.R.color.white);
@@ -157,8 +158,15 @@ public class MaterialScrollBar extends RelativeLayout {
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if (handleTouchOnly && hidden) {
+                    return false;
+                }
                 if (!totallyHidden) {
-                    if (event.getAction() != MotionEvent.ACTION_UP) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN && handleTouchOnly && (event.getY() < handle.getY() || event.getY() > (handle.getY() + handle.getHeight()))) {
+                        return false;
+                    }
+
+                    if (event.getAction() != MotionEvent.ACTION_UP && event.getAction() != MotionEvent.ACTION_CANCEL) {
                         int newPosition = (int) (recyclerView.getAdapter().getItemCount() * (event.getY() / (getHeight() - handle.getHeight())));
                         if (mFastScrolledListener != null) {
                             mFastScrolledListener.onFastScrolledTo(newPosition);
@@ -205,6 +213,11 @@ public class MaterialScrollBar extends RelativeLayout {
      */
     public MaterialScrollBar setHideDuration(int duration) {
         this.hideDuration = duration;
+        return this;
+    }
+
+    public MaterialScrollBar setHandleTouchOnly(boolean handleTouchOnly) {
+        this.handleTouchOnly = handleTouchOnly;
         return this;
     }
 
