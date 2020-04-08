@@ -2,8 +2,9 @@ package com.turingtechnologies.materialscrollbar;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;

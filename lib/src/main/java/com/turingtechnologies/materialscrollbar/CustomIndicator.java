@@ -3,7 +3,8 @@ package com.turingtechnologies.materialscrollbar;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Paint;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Indicator which should be used in all other cases.

@@ -25,10 +25,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -39,6 +35,11 @@ import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 @SuppressWarnings("unused")
 @SuppressLint("ViewConstructor")
 public class MaterialScrollBar extends RelativeLayout {
@@ -47,7 +48,7 @@ public class MaterialScrollBar extends RelativeLayout {
     private View handle;
     int handleColour;
     private int handleOffColour = Color.parseColor("#9c9c9c");
-    private boolean hidden = true;
+    private boolean hidden;
     private int hideDuration = 2500;
     private boolean hide = true;
     private boolean handleTouchOnly = false;
@@ -59,12 +60,7 @@ public class MaterialScrollBar extends RelativeLayout {
     private Handler mUIHandler = new Handler(Looper.getMainLooper());
     private IOnFastScrolledListener mFastScrolledListener;
 
-    private Runnable mFadeBar = new Runnable() {
-        @Override
-        public void run() {
-            fadeOut();
-        }
-    };
+    private Runnable mFadeBar = this::fadeOut;
 
     /**
      * For testing only. Should not generally be accessed.
@@ -154,55 +150,53 @@ public class MaterialScrollBar extends RelativeLayout {
         setTranslationX(Utils.getDP(8, this));
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setTouchIntercept() {
-        setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (handleTouchOnly && hidden) {
-                    return false;
-                }
-                if (!totallyHidden) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN && handleTouchOnly && (event.getY() < handle.getY() || event.getY() > (handle.getY() + handle.getHeight()))) {
-                        return false;
-                    }
-
-                    if (event.getAction() != MotionEvent.ACTION_UP && event.getAction() != MotionEvent.ACTION_CANCEL) {
-                        int newPosition = (int) (recyclerView.getAdapter().getItemCount() * (event.getY() / (getHeight() - handle.getHeight())));
-                        if (mFastScrolledListener != null) {
-                            mFastScrolledListener.onFastScrolledTo(newPosition);
-                        }
-                        recyclerView.scrollToPosition(newPosition);
-                        if (indicator != null && indicator.getVisibility() == INVISIBLE) {
-                            indicator.setVisibility(VISIBLE);
-                        }
-
-                        if (lightOnTouch) {
-                            handle.setBackgroundColor(handleColour);
-                        }
-
-                        mUIHandler.removeCallbacks(mFadeBar);
-                        fadeIn();
-                    } else {
-                        if (mFastScrolledListener != null) {
-                            mFastScrolledListener.onFastScrolledTo(-1000);
-                        }
-                        if (indicator != null && indicator.getVisibility() == VISIBLE) {
-                            indicator.setVisibility(INVISIBLE);
-                        }
-
-                        if (lightOnTouch) {
-                            handle.setBackgroundColor(handleOffColour);
-                        }
-
-                        if (hide) {
-                            mUIHandler.removeCallbacks(mFadeBar);
-                            mUIHandler.postDelayed(mFadeBar, hideDuration);
-                        }
-                    }
-                    return true;
-                }
+        setOnTouchListener((v, event) -> {
+            if (handleTouchOnly && hidden) {
                 return false;
             }
+            if (!totallyHidden) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN && handleTouchOnly && (event.getY() < handle.getY() || event.getY() > (handle.getY() + handle.getHeight()))) {
+                    return false;
+                }
+
+                if (event.getAction() != MotionEvent.ACTION_UP && event.getAction() != MotionEvent.ACTION_CANCEL) {
+                    int newPosition = (int) (recyclerView.getAdapter().getItemCount() * (event.getY() / (getHeight() - handle.getHeight())));
+                    if (mFastScrolledListener != null) {
+                        mFastScrolledListener.onFastScrolledTo(newPosition);
+                    }
+                    recyclerView.scrollToPosition(newPosition);
+                    if (indicator != null && indicator.getVisibility() == INVISIBLE) {
+                        indicator.setVisibility(VISIBLE);
+                    }
+
+                    if (lightOnTouch) {
+                        handle.setBackgroundColor(handleColour);
+                    }
+
+                    mUIHandler.removeCallbacks(mFadeBar);
+                    fadeIn();
+                } else {
+                    if (mFastScrolledListener != null) {
+                        mFastScrolledListener.onFastScrolledTo(-1000);
+                    }
+                    if (indicator != null && indicator.getVisibility() == VISIBLE) {
+                        indicator.setVisibility(INVISIBLE);
+                    }
+
+                    if (lightOnTouch) {
+                        handle.setBackgroundColor(handleOffColour);
+                    }
+
+                    if (hide) {
+                        mUIHandler.removeCallbacks(mFadeBar);
+                        mUIHandler.postDelayed(mFadeBar, hideDuration);
+                    }
+                }
+                return true;
+            }
+            return false;
         });
     }
 

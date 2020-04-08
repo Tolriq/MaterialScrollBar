@@ -19,12 +19,13 @@ package com.turingtechnologies.materialscrollbar;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 public abstract class Indicator extends RelativeLayout {
 
