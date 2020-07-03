@@ -17,12 +17,10 @@
 package com.turingtechnologies.materialscrollbar;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
@@ -30,37 +28,36 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 @SuppressLint("ViewConstructor")
 public class MaterialScrollBar extends RelativeLayout {
 
-    private View background;
-    private View handle;
+    private final View background;
+    private final View handle;
     int handleColour;
     private int handleOffColour = Color.parseColor("#9c9c9c");
     private boolean hidden;
     private int hideDuration = 2500;
     private boolean hide = true;
     private boolean handleTouchOnly = false;
-    private RecyclerView recyclerView;
+    private final RecyclerView recyclerView;
     private Indicator indicator;
     private int textColour = ContextCompat.getColor(getContext(), android.R.color.white);
-    private boolean lightOnTouch;
+    private final boolean lightOnTouch;
     private boolean totallyHidden = false;
-    private Handler mUIHandler = new Handler(Looper.getMainLooper());
+    private final Handler mUIHandler = new Handler(Looper.getMainLooper());
     private IOnFastScrolledListener mFastScrolledListener;
 
-    private Runnable mFadeBar = this::fadeOut;
+    private final Runnable mFadeBar = this::fadeOut;
 
     /**
      * For testing only. Should not generally be accessed.
@@ -114,11 +111,14 @@ public class MaterialScrollBar extends RelativeLayout {
 
         this.lightOnTouch = lightOnTouch;
         int colourToSet;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            handleColour = fetchAccentColour(context);
-        } else {
-            handleColour = Color.parseColor("#9c9c9c");
-        }
+        TypedValue typedValue = new TypedValue();
+
+        TypedArray a = context.obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.colorAccent});
+        int colour = a.getColor(0, 0);
+
+        a.recycle();
+
+        handleColour = colour;
         if (lightOnTouch) {
             colourToSet = Color.parseColor("#9c9c9c");
         } else {
@@ -375,9 +375,7 @@ public class MaterialScrollBar extends RelativeLayout {
     public MaterialScrollBar setAutoHide(Boolean hide) {
         if (!hide) {
             mUIHandler.removeCallbacks(mFadeBar);
-            TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f);
-            anim.setFillAfter(true);
-            startAnimation(anim);
+            setTranslationX(getWidth());
         }
         this.hide = hide;
         return this;
@@ -425,29 +423,16 @@ public class MaterialScrollBar extends RelativeLayout {
         return this;
     }
 
-    //Fetch accent colour on devices running Lollipop or newer.
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private int fetchAccentColour(Context context) {
-        TypedValue typedValue = new TypedValue();
-
-        TypedArray a = context.obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.colorAccent});
-        int colour = a.getColor(0, 0);
-
-        a.recycle();
-
-        return colour;
-    }
-
     /**
      * Animates the bar out of view
      */
     private void fadeOut() {
         if (!hidden) {
-            TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_SELF, 1.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f);
-            anim.setDuration(250);
-            anim.setFillAfter(true);
+            animate()
+                    .translationX(getWidth())
+                    .setDuration(200)
+                    .start();
             hidden = true;
-            startAnimation(anim);
             if (mFastScrolledListener != null) {
                 mFastScrolledListener.onFastScrolledTo(-1000);
             }
@@ -459,14 +444,12 @@ public class MaterialScrollBar extends RelativeLayout {
      */
     private void fadeIn() {
         if (hidden && hide && !totallyHidden) {
-            if (getTranslationX() > 0) {
-                setTranslationX(0);
-            }
+            setTranslationX(getWidth());
             hidden = false;
-            TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 1.0f, Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f);
-            anim.setDuration(250);
-            anim.setFillAfter(true);
-            startAnimation(anim);
+            animate()
+                    .translationX(0)
+                    .setDuration(200)
+                    .start();
         }
     }
 
@@ -487,7 +470,7 @@ public class MaterialScrollBar extends RelativeLayout {
         }
 
         @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
             float scroll = calculateScrollProgress(recyclerView) * (materialScrollBar.getHeight() - handle.getHeight());
             if (scroll >= 0) {
@@ -537,7 +520,7 @@ public class MaterialScrollBar extends RelativeLayout {
         }
 
         @Override
-        public void onScrollStateChanged(final RecyclerView recyclerView, int newState) {
+        public void onScrollStateChanged(@NonNull final RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
 
             if (hide) {

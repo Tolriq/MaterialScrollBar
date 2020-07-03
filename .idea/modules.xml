@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Lib-MaterialScrollBar.iml" filepath="$PROJECT_DIR$/Lib-MaterialScrollBar.iml" group="Lib-MaterialScrollBar" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="Lib-MaterialScrollBar/app" />
-      <module fileurl="file://$PROJECT_DIR$/lib/lib.iml" filepath="$PROJECT_DIR$/lib/lib.iml" group="Lib-MaterialScrollBar/lib" />
+      <module fileurl="file://$PROJECT_DIR$/Lib-MaterialScrollBar.iml" filepath="$PROJECT_DIR$/Lib-MaterialScrollBar.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Lib-MaterialScrollBar.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Lib-MaterialScrollBar.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lib/Lib-MaterialScrollBar.lib.iml" filepath="$PROJECT_DIR$/.idea/modules/lib/Lib-MaterialScrollBar.lib.iml" />
     </modules>
   </component>
 </project>

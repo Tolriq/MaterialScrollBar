@@ -28,12 +28,12 @@ targetCompatibility = '1.8'
 sourceCompatibility = '1.8'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 30
+    buildToolsVersion "30.0.0"
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 29
+        minSdkVersion 21
+        targetSdkVersion 30
         versionCode 11
         versionName "5.1.0"
     }
@@ -53,4 +53,5 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.interpolator:interpolator:1.0.0'
 }

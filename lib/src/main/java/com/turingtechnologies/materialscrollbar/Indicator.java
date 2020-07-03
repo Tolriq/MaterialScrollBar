@@ -18,7 +18,6 @@ package com.turingtechnologies.materialscrollbar;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -30,7 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public abstract class Indicator extends RelativeLayout {
 
     protected TextView textView;
-    private Context context;
+    private final Context context;
 
     public Indicator(Context context) {
         super(context);
@@ -38,12 +37,7 @@ public abstract class Indicator extends RelativeLayout {
     }
 
     void linkToScrollBar(MaterialScrollBar materialScrollBar) {
-        if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            setBackground(ContextCompat.getDrawable(context, R.drawable.indicator));
-        } else {
-            //noinspection deprecation
-            setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.indicator));
-        }
+        setBackground(ContextCompat.getDrawable(context, R.drawable.indicator));
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(Utils.getDP(getIndicatorWidth(), this), Utils.getDP(getIndicatorHeight(), this));
         lp.setMargins(0, 0, Utils.getDP(8, this), 0);
         setVisibility(INVISIBLE);
@@ -74,12 +68,11 @@ public abstract class Indicator extends RelativeLayout {
             y += Utils.getDP(getIndicatorHeight(), this);
             this.setScaleY(-1F);
             textView.setScaleY(-1F);
-            this.setY(y);
         } else {
             this.setScaleY(1F);
             textView.setScaleY(1F);
-            this.setY(y);
         }
+        this.setY(y);
     }
 
     /**
@@ -91,12 +84,14 @@ public abstract class Indicator extends RelativeLayout {
         textView.setTextColor(colour);
     }
 
+    @SuppressWarnings("rawtypes")
     abstract String getTextElement(Integer currentSection, RecyclerView.Adapter adapter);
 
     abstract int getIndicatorHeight();
 
     abstract int getIndicatorWidth();
 
+    @SuppressWarnings("rawtypes")
     abstract void testAdapter(RecyclerView.Adapter adapter);
 
     abstract int getTextSize();
